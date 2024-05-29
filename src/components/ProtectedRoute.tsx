@@ -1,13 +1,16 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const location = useLocation();
+  const router = useRouter();
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} />;
+    if (typeof window !== 'undefined') {
+      router.push('/login');
+    }
+    return null;
   }
 
   return <>{children}</>;

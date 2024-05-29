@@ -1,20 +1,16 @@
+import React from 'react';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useAuth } from '../src/contexts/AuthContext';
 
 const Home = () => {
-  const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [user, router]);
-
-  return <div>Loading...</div>;
+  return (
+    <div>
+      <h1>Welcome to ACI Logistics Shwapno</h1>
+      <button onClick={() => router.push('/login')}>Login</button>
+      <button onClick={() => router.push('/register')}>Register</button>
+    </div>
+  );
 };
 
 export default Home;

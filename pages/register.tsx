@@ -1,58 +1,48 @@
-import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../src/firebaseConfig';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/router';
+import { useAuth } from '../src/contexts/AuthContext';
+import LoadingSpinner from '../src/components/LoadingSpinner';
 
-const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+const Register: React.FC = () => {
+  const { register } = useAuth();
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const { email, password } = event.currentTarget.elements as typeof event.currentTarget.elements & {
+      email: HTMLInputElement;
+      password: HTMLInputElement;
+    };
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard');
-    } catch (error: any) {
-      setError(error.message);
+      await register(email.value, password.value);
+    } catch (error) {
+      alert('Failed to register');
     }
   };
 
+  if (!isClient) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-3 bg-white rounded-lg shadow">
-        <h1 className="text-2xl font-bold text-center">Register</h1>
-        {error && <p className="text-red-500">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 mt-2 border rounded-md"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 mt-2 border rounded-md"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 text-white bg-blue-500 rounded-md"
-          >
-            Register
-          </button>
-        </form>
-      </div>
+    <div>
+      <h1>Register</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email:</label>
+          <input name="email" type="email" required />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input name="password" type="password" required />
+        </div>
+        <button type="submit">Register</button>
+      </form>
     </div>
   );
 };
